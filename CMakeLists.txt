@@ -7,6 +7,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 include_directories(/usr/include/)
 link_directories(/usr/include/)
 
-add_executable(P_CONC_LABO1 main.c)
+#add_executable(P_CONC_LABO1 mainA.c)
+add_executable(P_CONC_LABO1 mainB.c)
+#add_executable(P_CONC_LABO1 mainC.c)
 
 find_package(Threads)

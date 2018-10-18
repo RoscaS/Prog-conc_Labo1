@@ -1,8 +1,18 @@
 # Programmation concurrente: Labo1
 
-* Kneuss Michael
-* Latino Nathan
-* Rosca Sol
+* **Date**: 17/10/2018
+* **Élèves**: Kneuss Michael, Latino Nathan, Rosca Sol
+* **Classe**: INF2b
+* **Échéance**: 23/10/2018
+
+## Rapport
+
+### Usage
+
+`gcc -pthread main.c -o main [number of threads] [increments/thread]`
+* number of threads: `int`
+* increments/thread: `int`
+
 
 ## Consigne
 

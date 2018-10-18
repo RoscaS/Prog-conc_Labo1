@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+
 #define DEFAULT_VALUE 1000
 
 typedef struct {
@@ -8,11 +9,53 @@ typedef struct {
     int increments;
     int total_threads;
     int count;
+    pthread_mutex_t mutex_count;
 } DataStore;
 
-void *thread(void*);
-void stats(DataStore*);
-DataStore init(int, char**);
+
+void *thread(void *arg) {
+    DataStore *data = arg;
+    for (int i = 0; i < data->increments; i++) {
+        pthread_mutex_lock(&data->mutex_count);
+        data->count++;
+        pthread_mutex_unlock(&data->mutex_count);
+    }
+    pthread_exit(NULL);
+}
+
+
+DataStore init(int argc, char *argv[]) {
+    DataStore data;
+    if (argc != 3){
+        printf("usage: labo_1 [number of threads] [increments/thread]\n");
+        printf("default values (1000, 1000) set\n");
+        data.increments = data.total_threads = DEFAULT_VALUE;
+    } else {
+        data.total_threads = (int) strtol(argv[1], NULL, 10);
+        data.increments = (int) strtol(argv[2], NULL, 10);
+    }
+    pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+    data.threads_tab = malloc(sizeof(pthread_t) * data.total_threads);
+    data.mutex_count = lock;
+    data.count = 0;
+
+    return data;
+}
+
+
+void stats(DataStore* data) {
+    int expected = data->increments * data->total_threads;
+    int delta = expected - data->count;
+    double ratio = (double) expected / data->count;
+    printf("\nThreads created:\t\t%d\n", data->total_threads);
+    printf("Incrementation/thread:\t%d\n", data->increments);
+    printf("Expected count value:\t%d\n", expected);
+    printf("Actual count value:\t\t%d\t", data->count);
+    delta > 0 ? printf("(missing %d)\n", delta)
+              : printf("(excess: %d)\n", delta);
+    printf("Ratio expected/count:\t%.3f\n", ratio);
+}
+
 
 int main(int argc, char *argv[]) {
 
@@ -34,39 +77,3 @@ int main(int argc, char *argv[]) {
     return EXIT_SUCCESS;
 }
 
-DataStore init(int argc, char *argv[]) {
-    DataStore data;
-    if (argc != 3){
-        printf("usage: labo_1 [number of threads] [increments/thread]\n");
-        printf("default values (1000, 1000) set\n");
-        data.increments = data.total_threads = DEFAULT_VALUE;
-    } else {
-        data.total_threads = (int) strtol(argv[1], NULL, 10);
-        data.increments = (int) strtol(argv[2], NULL, 10);
-    }
-    data.threads_tab = malloc(sizeof(pthread_t) * data.total_threads);
-    data.count = 0;
-
-    return data;
-}
-
-void stats(DataStore* data) {
-    int expected = data->increments * data->total_threads;
-    int delta = expected - data->count;
-    double ratio = (double) expected / data->count;
-    printf("\nThreads created:\t\t%d\n", data->total_threads);
-    printf("Incrementation/thread:\t%d\n", data->increments);
-    printf("Expected count value:\t%d\n", expected);
-    printf("Actual count value:\t\t%d\t", data->count);
-    delta > 0 ? printf("(missing %d)\n", delta)
-              : printf("(excess: %d)\n", delta);
-    printf("Ratio expected/count:\t%.3f\n", ratio);
-}
-
-void *thread(void *arg) {
-    DataStore *data = arg;
-    for (int i = 0; i < data->increments; i++) {
-        data->count++;
-    }
-    pthread_exit(NULL);
-}

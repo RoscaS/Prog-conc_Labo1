@@ -23,4 +23,6 @@ yarn-error.log*
 
 # Cmake
 /cmake-build-debug
-main
+mainA
+mainB
+mainC
